@@ -416,3 +416,16 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Bioinformatics file types 
+*.tar.gz
+*.gff 
+*.fastq 
+*.fq 
+*.fna 
+*.fasta
+*.fa
+*.gff3 
+*.sam 
+*.gz 
+*.bam
