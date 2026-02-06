@@ -1,0 +1,21 @@
+Assembly Name	Assembly Accession	Assembly Paired Assembly Accession	Organism Name	Organism Infraspecific Names Breed	Organism Infraspecific Names Strain	Organism Infraspecific Names Cultivar	Organism Infraspecific Names Ecotype	Organism Infraspecific Names Isolate	Organism Infraspecific Names Sex	Annotation Name	Assembly Level	Assembly Release Date	WGS project accession	Assembly Stats Number of Scaffolds
+gfAmaRube1.hap1.1	GCA_965266955.1		Amanita rubescens								Chromosome	2025-04-30	CBDHUZ01	18
+ASM5436961v1	GCA_054369615.1		Amanita muscaria		2016PMI152					Annotation submitted by DOE Joint Genome Institute	Scaffold	2026-01-06	JBTLHQ01	316
+ASM198336v1	GCA_001983365.1		Amanita bisporigera		Ingham01						Scaffold	2017-02-02	MIPV01	10390
+Amanita thiersii v1.0	GCA_002554575.1		Amanita thiersii Skay4041		SKay4041					Annotation submitted by JGI	Scaffold	2017-10-16	JDWF01	1446
+ASM3217347v1	GCA_032173475.1		Amanita phalloides				Native Forest			Annotation submitted by University of Wisconsin-Madison	Scaffold	2023-09-28	JAENRT01	605
+ASM331661v1	GCA_003316615.1		Amanita pseudoporphyria		MG37						Scaffold	2018-07-13	QFEO01	17345
+ASM169177v3	GCA_001691775.3		Amanita inopinata Kibby_2008		Kibby_2008					Annotation submitted by Harvard University	Scaffold	2018-10-17	JNHW02	881
+ASM169178v3	GCA_001691785.3		Amanita brunnescens Koide BX004		Koide BX004					Annotation submitted by Harvard University	Scaffold	2018-10-17	JNHV02	5972
+ASM2301443v1	GCA_023014435.1		Amanita fuliginea		LH00002						Scaffold	2022-04-15	JAEBUQ01	35
+ASM2301445v1	GCA_023014455.1		Amanita exitialis		LH00005						Scaffold	2022-04-15	JAEBUR01	129
+ASM2301440v1	GCA_023014405.1		Amanita molliuscula		LH00009						Contig	2022-04-15	JAEBUP01	155
+ASM2301439v1	GCA_023014395.1		Amanita rimosa		LH00003						Contig	2022-04-15	JAEBUO01	134
+ASM2001103v1	GCA_020011035.1		Amanita subjunquillea		LH00001						Scaffold	2021-09-16	JAEBUT01	119
+ASM2301447v1	GCA_023014475.1		Amanita pallidorosea		LH00007						Scaffold	2022-04-15	JAEBUS01	246
+ASM169175v2	GCA_001691755.2		Amanita polypyramis BW_CC		BW_CC					Annotation submitted by Harvard University	Scaffold	2018-10-17	JNHY02	999
+AmaJack1.0	GCA_000497225.1		Amanita jacksonii TRTC168611								Scaffold	2013-11-18	AYNK01	4516
+Amanita muscaria Koide BX008 v1.0	GCA_000827485.1		Amanita muscaria Koide BX008		Koide BX008					Annotation submitted by DOE Joint Genome Institute	Scaffold	2015-01-27	JMDV01	1101
+ASM169176v1	GCA_001691765.1		Amanita muscaria var. guessowii Koide BX008		Koide BX008						Scaffold	2016-07-22	JNHX01	17515
+gfAmaRube1.hap2.1	GCA_965266945.1		Amanita rubescens								Scaffold	2025-04-30	CBDHVA01	59
+Amarub1	GCA_015039365.1		Amanita rubescens		Prilba					Annotation submitted by DOE Joint Genome Institute	Contig	2020-10-28	WION01	817
