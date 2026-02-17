@@ -1,0 +1,21 @@
+container_image = docker://multimuscaria/fastqtk:4.0
+universe = container
+
+executable = asm.sh
+arguments = $(raw_read)
+
+
+transfer_input_files = 
+transfer_output_files = $(raw_read).tar.gz
+
+log = $(raw_read).log
+error = $(raw_read).err
+output = $(raw_read).out
+
+# NOTE SPAdes generates a LOT of intermediate files. As such, you should increase the memory requirements to 120 GB or so. 
+# If you do not increase disk to 120 GB, job will repeatedly cycle between run and idle bc it will outstrip the requested disk. 
+request_cpus = 16
+request_memory = 60GB
+request_disk = 120GB
+
+queue raw_read from sra-list.txt

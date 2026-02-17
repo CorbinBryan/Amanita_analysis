@@ -1,0 +1,21 @@
+Organism Scientific Name	Organism Common Name	Organism Qualifier	Taxonomy id	Assembly Name	Assembly Accession	Source	Annotation	Level	Contig N50	Size	Submission Date	Gene Count	BioProject	BioSample
+Amanita jacksonii TRTC168611			1417757	AmaJack1.0	GCA_000497225.1	GenBank		Scaffold	17077	30856360	2013-11-18		PRJNA226613	SAMN02981569
+Amanita muscaria Koide BX008		strain: Koide BX008	946122	Amanita muscaria Koide BX008 v1.0	GCA_000827485.1	GenBank	Annotation submitted by DOE Joint Genome Institute	Scaffold	30015	40699759	2015-01-27	18091	PRJNA207684	SAMN02746075
+Amanita polypyramis BW_CC		strain: BW_CC	1457511	ASM169175v2	GCA_001691755.2	GenBank	Annotation submitted by Harvard University	Scaffold	63015	19670722	2018-10-17	7962	PRJNA236755	SAMN02603360
+Amanita muscaria var. guessowii Koide BX008		strain: Koide BX008	1457510	ASM169176v1	GCA_001691765.1	GenBank		Scaffold	11001	67640596	2016-07-22		PRJNA236758	SAMN02603355
+Amanita inopinata Kibby_2008		strain: Kibby_2008	1457513	ASM169177v3	GCA_001691775.3	GenBank	Annotation submitted by Harvard University	Scaffold	140420	20082689	2018-10-17	7564	PRJNA236757	SAMN02603361
+Amanita brunnescens Koide BX004		strain: Koide BX004	1457509	ASM169178v3	GCA_001691785.3	GenBank	Annotation submitted by Harvard University	Scaffold	12726	36016155	2018-10-17	14506	PRJNA236753	SAMN02603359
+Amanita bisporigera	eastern North American destroying angel	strain: Ingham01	87325	ASM198336v1	GCA_001983365.1	GenBank		Scaffold	2075	75346262	2017-02-02		PRJNA339438	SAMN05591108
+Amanita thiersii Skay4041		strain: SKay4041	703135	Amanita thiersii v1.0	GCA_002554575.1	GenBank	Annotation submitted by JGI	Scaffold	60405	33689220	2017-10-16	10346	PRJNA82749	SAMN00783882
+Amanita pseudoporphyria		strain: MG37	67725	ASM331661v1	GCA_003316615.1	GenBank		Scaffold	6499	52485497	2018-07-13		PRJNA454572	SAMN09010630
+Amanita rubescens	blusher	strain: Prilba	71933	Amarub1	GCA_015039365.1	GenBank	Annotation submitted by DOE Joint Genome Institute	Contig	158644	76593165	2020-10-28	16276	PRJNA572471	SAMN12811777
+Amanita subjunquillea		strain: LH00001	67733	ASM2001103v1	GCA_020011035.1	GenBank		Scaffold	218346	53204488	2021-09-16		PRJNA679796	SAMN16846661
+Amanita rimosa		strain: LH00003	580330	ASM2301439v1	GCA_023014395.1	GenBank		Contig	697900	45347215	2022-04-15		PRJNA679796	SAMN16846666
+Amanita molliuscula		strain: LH00009	1506954	ASM2301440v1	GCA_023014405.1	GenBank		Contig	1053316	71175040	2022-04-15		PRJNA679796	SAMN16846665
+Amanita fuliginea		strain: LH00002	67708	ASM2301443v1	GCA_023014435.1	GenBank		Scaffold	3029391	60225502	2022-04-15		PRJNA679796	SAMN16846664
+Amanita exitialis		strain: LH00005	262245	ASM2301445v1	GCA_023014455.1	GenBank		Scaffold	3025964	49118549	2022-04-15		PRJNA679796	SAMN16846663
+Amanita pallidorosea	pale-rose death cap	strain: LH00007	1324310	ASM2301447v1	GCA_023014475.1	GenBank		Scaffold	216962	57854386	2022-04-15		PRJNA679796	SAMN16846662
+Amanita phalloides	death cap	ecotype: Native Forest	67723	ASM3217347v1	GCA_032173475.1	GenBank	Annotation submitted by University of Wisconsin-Madison	Scaffold	117196	35514831	2023-09-28	8742	PRJNA565149	SAMN12735910
+Amanita muscaria	fly agaric	strain: 2016PMI152	41956	ASM5436961v1	GCA_054369615.1	GenBank	Annotation submitted by DOE Joint Genome Institute	Scaffold	2171544	110261529	2026-01-06	15791	PRJNA697207	SAMN17674610
+Amanita rubescens	blusher		71933	gfAmaRube1.hap2.1	GCA_965266945.1	GenBank		Scaffold	1056557	36833561	2025-04-30		PRJEB88950	SAMEA113940608
+Amanita rubescens	blusher		71933	gfAmaRube1.hap1.1	GCA_965266955.1	GenBank		Chromosome	1583420	34096625	2025-04-30		PRJEB88951	SAMEA113940608
