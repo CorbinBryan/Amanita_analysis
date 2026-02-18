@@ -8,3 +8,6 @@
 * Note that each genome downloaded from NCBI has it's own directory in `./data_set/ncbi_genomes`. This is also the case for the JGI genomes, which are stored in the same directory. 
 * I transferred all files to the CHTC computing cluster (stored in a directory in staging).
 * The file suffixes are not uniform--I have opted to write a script to change the names which I will transfer to the cluster as well. Just in case I screwed up the original script, I got AI to rewrite it for me. 
+* I also wrote a script to retrieve each assembled (contigs and scaffolds) SRA genome and rename it according to the directory it was in. This was an oversight on my part--next time I would recommend renaming during the assembly script to prevent having to do this in the future. 
+* I don't believe that I said this above, but I did assemble all of the SRA genomes using SPAdes. My script is available in `./chtc_stuff`.
+* 
