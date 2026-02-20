@@ -68,8 +68,8 @@ def process_busco_archives(busco_dir: str) -> Tuple[Dict[str, Dict[str, list]], 
                     shutil.rmtree(busco_dir_extracted)
                     continue
                 
-                # Process all sequence files in this genome
-                ortho_files = list(seq_dir.glob('*'))
+                # Process only DNA sequence files (.fna) in this genome
+                ortho_files = list(seq_dir.glob('*.fna'))
                 orthogroup_ids = set()
                 
                 for seq_file in ortho_files:
