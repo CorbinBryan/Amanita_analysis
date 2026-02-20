@@ -25,12 +25,12 @@ def extract_sample_name(tar_filename: str) -> str:
     return name
 
 
-def process_busco_archives(busco_dir: str, min_count: int) -> Dict[str, Dict[str, list]]:
+def process_busco_archives(busco_dir: str) -> Tuple[Dict[str, Dict[str, list]], int]:
     """
     Process BUSCO tar.gz archives and collect orthogroup sequences.
     
     Returns:
-        Dict mapping orthogroup_id -> {sample_id -> [sequences]}
+        Tuple of (Dict mapping orthogroup_id -> {sample_id -> [sequences]}, genome_count)
     """
     busco_dir = Path(busco_dir).resolve()
     orthogroups = defaultdict(lambda: defaultdict(list))
@@ -40,8 +40,7 @@ def process_busco_archives(busco_dir: str, min_count: int) -> Dict[str, Dict[str
     tar_files = sorted(busco_dir.glob('*.tar.gz'))
     total_files = len(tar_files)
     
-    print(f"Found {total_files} BUSCO archives")
-    print(f"Minimum genomes required: {min_count}\n")
+    print(f"Found {total_files} BUSCO archives\n")
     
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
@@ -94,17 +93,9 @@ def process_busco_archives(busco_dir: str, min_count: int) -> Dict[str, Dict[str
                 continue
     
     print(f"\nProcessed {genome_count} genomes successfully")
-    print(f"Found {len(orthogroups)} unique orthogroups")
+    print(f"Found {len(orthogroups)} unique orthogroups\n")
     
-    # Filter orthogroups by minimum count
-    filtered_orthogroups = {}
-    for ortho_id, samples in orthogroups.items():
-        if len(samples) >= min_count:
-            filtered_orthogroups[ortho_id] = samples
-    
-    print(f"Orthogroups in >= {min_count} genomes: {len(filtered_orthogroups)}\n")
-    
-    return filtered_orthogroups, genome_count
+    return orthogroups, genome_count
 
 
 def update_fasta_headers(fasta_content: str, sample_name: str, ortho_id: str) -> str:
@@ -133,18 +124,22 @@ def update_fasta_headers(fasta_content: str, sample_name: str, ortho_id: str) ->
     return '\n'.join(updated_lines)
 
 
-def write_concatenated_fasta(orthogroups: Dict[str, Dict[str, list]], 
-                             output_file: str):
+def write_individual_fastas(orthogroups: Dict[str, Dict[str, list]], 
+                            output_dir: str) -> int:
     """
-    Write all orthogroups to a single concatenated FASTA file.
+    Write each orthogroup to a separate FASTA file in the output directory.
     """
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
     total_sequences = 0
     
-    with open(output_file, 'w') as out:
-        # Sort orthogroup IDs for consistent output
-        for ortho_id in sorted(orthogroups.keys()):
-            samples = orthogroups[ortho_id]
-            
+    # Sort orthogroup IDs for consistent output
+    for ortho_id in sorted(orthogroups.keys()):
+        samples = orthogroups[ortho_id]
+        output_file = output_dir / f"{ortho_id}.fasta"
+        
+        with open(output_file, 'w') as out:
             # Sort samples for consistency
             for sample_name in sorted(samples.keys()):
                 sequences = samples[sample_name]
@@ -160,7 +155,7 @@ def write_concatenated_fasta(orthogroups: Dict[str, Dict[str, list]],
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Concatenate BUSCO orthogroups from multiple genomes into a single FASTA file.'
+        description='Extract BUSCO orthogroups found in at least 3/4 of genomes and create individual FASTA files.'
     )
     parser.add_argument(
         'busco_dir',
@@ -168,8 +163,8 @@ def main():
     )
     parser.add_argument(
         '-o', '--output',
-        default='busco_concatenated.fasta',
-        help='Output FASTA file (default: busco_concatenated.fasta)'
+        default='busco_orthogroups',
+        help='Output directory for individual FASTA files (default: busco_orthogroups)'
     )
     parser.add_argument(
         '-p', '--proportion',
@@ -190,42 +185,51 @@ def main():
         print(f"ERROR: Not a directory: {busco_dir}")
         sys.exit(1)
     
-    # Count genomes and calculate minimum count
+    # Count available tar files
     tar_files = list(busco_dir.glob('*.tar.gz'))
     if not tar_files:
         print(f"ERROR: No .tar.gz files found in {busco_dir}")
         sys.exit(1)
     
-    genome_count = len(tar_files)
-    min_count = max(1, int(genome_count * args.proportion))
-    
-    print(f"BUSCO Concatenation Script")
+    print(f"BUSCO Orthogroup Extraction Script")
     print(f"=" * 50)
     print(f"Directory: {busco_dir}")
-    print(f"Output: {args.output}")
-    print(f"Proportion threshold: {args.proportion * 100:.0f}%")
-    print(f"Minimum genomes: {min_count}/{genome_count}\n")
+    print(f"Output directory: {args.output}")
+    print(f"Proportion threshold: {args.proportion * 100:.0f}%\n")
     
     # Process archives
-    orthogroups, processed_genomes = process_busco_archives(str(busco_dir), min_count)
+    orthogroups, processed_genomes = process_busco_archives(str(busco_dir))
     
-    if not orthogroups:
+    # Calculate minimum count based on actually processed genomes
+    min_count = max(1, int(processed_genomes * args.proportion))
+    
+    print(f"Recalculating threshold based on {processed_genomes} successfully processed genomes...")
+    print(f"Minimum genomes required: {min_count}\n")
+    
+    # Re-filter orthogroups based on actual genome count
+    filtered_orthogroups = {}
+    for ortho_id, samples in orthogroups.items():
+        if len(samples) >= min_count:
+            filtered_orthogroups[ortho_id] = samples
+    
+    if not filtered_orthogroups:
         print("ERROR: No orthogroups found meeting the minimum criteria")
         sys.exit(1)
     
     # Write output
-    print(f"Writing concatenated FASTA to {args.output}...")
-    total_seqs = write_concatenated_fasta(orthogroups, args.output)
+    print(f"Writing individual FASTA files to {args.output}...")
+    total_seqs = write_individual_fastas(filtered_orthogroups, args.output)
     
     output_path = Path(args.output).resolve()
-    file_size = output_path.stat().st_size
+    num_files = len(list(output_path.glob('*.fasta')))
     
     print(f"\nSuccess!")
     print(f"=" * 50)
-    print(f"Output file: {output_path}")
-    print(f"Total sequences: {total_seqs}")
-    print(f"Total orthogroups: {len(orthogroups)}")
-    print(f"File size: {file_size:,} bytes ({file_size / 1024 / 1024:.2f} MB)")
+    print(f"Output directory: {output_path}")
+    print(f"Total FASTA files created: {num_files}")
+    print(f"Total sequences written: {total_seqs}")
+    print(f"Total orthogroups: {len(filtered_orthogroups)}")
+
 
 
 if __name__ == '__main__':
