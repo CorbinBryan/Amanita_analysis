@@ -18,3 +18,4 @@
 * Note that several changes had to be made to previous versions of this script for it run. The CHTC has once again changed how they treat Docker environments--for some reason, editing files in the Docker image is no longer permitted unless you copy them into the scratch directory made at run-time. 
 * I've included the updated script and submission file for running BUSCO on the cluster (`./chtc_stuff/busco_template`). Note that I removed the syntax for transferring files as this directory is public. 
 * An additional error--when making a tar ball, it seems the cluster prefers both the output and input arguments to be surrounded in double quotes. Accordingly, variables should be surrounded with curly brackets. This is also just good practice for clarity and disambiguation. 
+* I discovered post-facto that many of the files that I ran BUSCO on failed for some reason. There is no pattern as to which samples. 
