@@ -18,4 +18,25 @@
 * Note that several changes had to be made to previous versions of this script for it run. The CHTC has once again changed how they treat Docker environments--for some reason, editing files in the Docker image is no longer permitted unless you copy them into the scratch directory made at run-time. 
 * I've included the updated script and submission file for running BUSCO on the cluster (`./chtc_stuff/busco_template`). Note that I removed the syntax for transferring files as this directory is public. 
 * An additional error--when making a tar ball, it seems the cluster prefers both the output and input arguments to be surrounded in double quotes. Accordingly, variables should be surrounded with curly brackets. This is also just good practice for clarity and disambiguation. 
-* I discovered post-facto that many of the files that I ran BUSCO on failed for some reason. There is no pattern as to which samples. 
+* I discovered post-facto that many of the files that I ran BUSCO on failed for some reason. There is no pattern as to which samples. The failed samples are given below. I identified these as failed based upon their file size, which was only so large as to contain the gzip file header. 
+<samp><pre>
+11669_S346_spades_no_contam.fasta
+GCA_000497225.1_AmaJack1.0_genomic.fna
+GCA_000827485.1_Amanita_muscaria_Koide_BX008_v1.0_genomic.fna
+GCA_015039365.1_Amarub1_genomic.fna
+GCA_020011035.1_ASM2001103v1_genomic.fna
+GCA_023014395.1_ASM2301439v1_genomic.fna
+Sogn5_S362_spades_no_contam.fasta
+SRR36117447_contigs.fasta
+SRR36118002_contigs.fasta
+SRR36137064_contigs.fasta
+SRR36137122_contigs.fasta
+SRR36137136_contigs.fasta
+SRR36137480_contigs.fasta
+SRR36141466_contigs.fasta
+SRR36145290_contigs.fasta
+SRR36145299_contigs.fasta
+Wirz_S363_spades_no_contam.fasta
+</pre></samp>
+
+* I removed the failed runs (HTCondor will not output a file to a location where a file already exists) with a quick oneliner. Then I released the held jobs using `condor_release --all`, which allows held jobs to be re-tried. Note that if the original reason for the hold is not corrected, the job will be held again shortly. 
