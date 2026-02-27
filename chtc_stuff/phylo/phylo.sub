@@ -1,0 +1,19 @@
+container_image = docker://multimuscaria/phylotools:6.0
+universe = container
+
+executable = phylo.sh
+arguments = $(busco)
+
+
+transfer_input_files = $(busco).fasta
+transfer_output_files = $(busco).treefile
+
+log = $(busco).log
+error = $(busco).err
+output = $(busco).out
+
+request_cpus = 8
+request_memory = 8GB
+request_disk = 2GB
+
+queue busco from busco_list.txt

@@ -3,24 +3,21 @@
 import os
 import tarfile
 import tempfile
-import shutil
 from collections import defaultdict
 from Bio import SeqIO
 
 INPUT_DIR = "PATH_TO_DIRECTORY_WITH_TARS"
-OUTPUT_DIR = "busco_single_copy_output"
+OUTPUT_DIR = "busco_single_copy_nt_output"
 MIN_FRACTION = 0.75  # 3/4 threshold
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# Store sequences by BUSCO ID
-# busco_id -> list of (genome_name, SeqRecord)
+# busco_id -> list of SeqRecords
 busco_dict = defaultdict(list)
-
 genomes = []
 
 # ---------------------------------------------------------
-# STEP 1: Parse all tar.gz BUSCO runs
+# STEP 1: Parse tar.gz BUSCO runs
 # ---------------------------------------------------------
 
 for fname in os.listdir(INPUT_DIR):
@@ -34,21 +31,22 @@ for fname in os.listdir(INPUT_DIR):
             with tarfile.open(tar_path, "r:gz") as tar:
                 tar.extractall(tmpdir)
 
-            # Find single-copy BUSCO sequence directory
+            # Locate single copy nucleotide sequences
             for root, dirs, files in os.walk(tmpdir):
                 if "single_copy_busco_sequences" in root:
                     for file in files:
-                        if file.endswith((".faa", ".fna", ".fa", ".fasta")):
-                            busco_id = file.split(".")[0]
+                        if file.endswith(".fna"):  # ONLY nucleotide
+                            busco_id = file.replace(".fna", "")
                             file_path = os.path.join(root, file)
 
                             for record in SeqIO.parse(file_path, "fasta"):
                                 record.id = genome
+                                record.name = genome
                                 record.description = ""
                                 busco_dict[busco_id].append(record)
 
 # ---------------------------------------------------------
-# STEP 2: Filter BUSCOs by presence threshold
+# STEP 2: Apply 3/4 threshold
 # ---------------------------------------------------------
 
 total_genomes = len(genomes)
