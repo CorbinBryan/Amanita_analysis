@@ -23,3 +23,5 @@ stage_*
 *.json
 *.jsonl
 *.tree
+
+phytop_linux
