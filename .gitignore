@@ -25,3 +25,7 @@ stage_*
 *.tree
 
 phytop_linux
+.Rproj.user
+*.nex
+*.trees
+concordance*
