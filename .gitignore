@@ -30,3 +30,7 @@ phytop_linux
 *.trees
 concordance*
 ./trees/*
+.Rdata
+.Rhistory
+tip* 
+R.Rproj
