@@ -4,60 +4,142 @@ import os
 import tarfile
 import tempfile
 from collections import defaultdict
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from Bio import SeqIO
 
-INPUT_DIR = "PATH_TO_DIRECTORY_WITH_TARS"
-OUTPUT_DIR = "busco_single_copy_nt_output"
-MIN_FRACTION = 0.75  # 3/4 threshold
+# ---------------------------------------------------------
+# CONFIG
+# ---------------------------------------------------------
+INPUT_DIR = "/Users/corbinbryan/Desktop/Amanita_analysis/buscos/busco_outputs"
+OUTPUT_DIR = "/Users/corbinbryan/Desktop/Amanita_analysis/buscos/busco_single_copy_nt_output"
+
+MIN_FRACTION = 0.15
+N_WORKERS = os.cpu_count() - 1  # adjust if needed
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# busco_id -> list of SeqRecords
-busco_dict = defaultdict(list)
-genomes = []
-
 # ---------------------------------------------------------
-# STEP 1: Parse tar.gz BUSCO runs
+# HELPERS
 # ---------------------------------------------------------
+def clean_genome_name(name):
+    for ext in [".fna", ".fasta", ".fa"]:
+        if name.endswith(ext):
+            name = name[:-len(ext)]
+    return name
 
-for fname in os.listdir(INPUT_DIR):
-    if fname.startswith("run_") and fname.endswith("_busco.tar.gz"):
-        genome = fname.replace("run_", "").replace("_busco.tar.gz", "")
-        genomes.append(genome)
 
-        tar_path = os.path.join(INPUT_DIR, fname)
+def process_tarball(fname):
+    """
+    Extract BUSCO sequences from one tar.gz file.
+    Returns:
+        genome_name, dict(busco_id -> SeqRecord)
+    """
 
+    genome = fname.replace("run_", "").replace("_busco.tar.gz", "")
+    genome = clean_genome_name(genome)
+
+    tar_path = os.path.join(INPUT_DIR, fname)
+    local_dict = {}
+
+    with tarfile.open(tar_path, "r:gz") as tar:
         with tempfile.TemporaryDirectory() as tmpdir:
-            with tarfile.open(tar_path, "r:gz") as tar:
-                tar.extractall(tmpdir)
+            tar.extractall(tmpdir)
 
-            # Locate single copy nucleotide sequences
-            for root, dirs, files in os.walk(tmpdir):
-                if "single_copy_busco_sequences" in root:
-                    for file in files:
-                        if file.endswith(".fna"):  # ONLY nucleotide
-                            busco_id = file.replace(".fna", "")
-                            file_path = os.path.join(root, file)
+            for root, _, files in os.walk(tmpdir):
+                # Only process correct BUSCO directory
+                if "single_copy_busco_sequences" not in root:
+                    continue
 
-                            for record in SeqIO.parse(file_path, "fasta"):
-                                record.id = genome
-                                record.name = genome
-                                record.description = ""
-                                busco_dict[busco_id].append(record)
+                for file in files:
+                    if not file.endswith(".fna"):
+                        continue
+
+                    fpath = os.path.join(root, file)
+
+                    # Extract correct BUSCO ID
+                    base = os.path.splitext(file)[0]
+                    busco_id = base.split("_")[0]
+
+                    for record in SeqIO.parse(fpath, "fasta"):
+                        record.id = f"{genome}|{busco_id}"
+                        record.description = ""
+
+                        # Ensure one sequence per genome per BUSCO
+                        if busco_id not in local_dict:
+                            local_dict[busco_id] = record
+
+    return genome, local_dict
+
 
 # ---------------------------------------------------------
-# STEP 2: Apply 3/4 threshold
+# MAIN PIPELINE
 # ---------------------------------------------------------
+def main():
 
-total_genomes = len(genomes)
-min_genomes_required = int(total_genomes * MIN_FRACTION + 0.999)
+    busco_dict = defaultdict(dict)
+    genomes = []
 
-print(f"Total genomes: {total_genomes}")
-print(f"Minimum genomes required: {min_genomes_required}")
+    tar_files = [
+        f for f in os.listdir(INPUT_DIR)
+        if f.startswith("run_") and f.endswith("_busco.tar.gz")
+    ]
 
-for busco_id, records in busco_dict.items():
-    if len(records) >= min_genomes_required:
+    print(f"Found {len(tar_files)} BUSCO archives")
+    print(f"Using {N_WORKERS} workers\n")
+
+    # ---------------------------------------------------------
+    # STEP 1: PARALLEL PROCESSING
+    # ---------------------------------------------------------
+    with ProcessPoolExecutor(max_workers=N_WORKERS) as executor:
+        futures = {executor.submit(process_tarball, f): f for f in tar_files}
+
+        for future in as_completed(futures):
+            fname = futures[future]
+
+            try:
+                genome, result_dict = future.result()
+            except Exception as e:
+                print(f"ERROR processing {fname}: {e}")
+                continue
+
+            genomes.append(genome)
+
+            for busco_id, record in result_dict.items():
+                busco_dict[busco_id][genome] = record
+
+            print(f"Finished: {genome}")
+
+    # ---------------------------------------------------------
+    # STEP 2: FILTERING
+    # ---------------------------------------------------------
+    total_genomes = len(genomes)
+    min_required = int(total_genomes * MIN_FRACTION + 0.999)
+
+    print(f"\nTotal genomes: {total_genomes}")
+    print(f"Minimum required: {min_required}")
+    print(f"Total BUSCOs found: {len(busco_dict)}")
+
+    # ---------------------------------------------------------
+    # STEP 3: WRITE OUTPUT
+    # ---------------------------------------------------------
+    kept = 0
+
+    for busco_id, genome_map in busco_dict.items():
+        if len(genome_map) < min_required:
+            continue
+
         output_path = os.path.join(OUTPUT_DIR, f"{busco_id}.fasta")
-        SeqIO.write(records, output_path, "fasta")
+        SeqIO.write(genome_map.values(), output_path, "fasta")
+        kept += 1
 
-print("Done.")
+    print(f"\nBUSCOs retained: {kept}")
+    print("Done.")
+
+
+# ---------------------------------------------------------
+# ENTRY POINT (CRITICAL for macOS/Windows)
+# ---------------------------------------------------------
+if __name__ == "__main__":
+    import multiprocessing
+    multiprocessing.freeze_support()  # safe on all platforms
+    main()

@@ -111,3 +111,62 @@ final_plot <- inset(j, pies, width = 0.02, height = 0.02)
 
 
 print(final_plot) 
+
+library(pheatmap)
+
+ani <- read.table("~/Desktop/Amanita_analysis/ani_matrix.tsv", header=TRUE, row.names=1, sep="\t")
+counts <- read.table("~/Desktop/Amanita_analysis/busco_counts.tsv", header=TRUE, row.names=1, sep="\t")
+
+
+ani_mat <- as.matrix(ani)
+pheatmap(ani_mat)
+pheatmap(ani_mat,
+         clustering_distance_rows = dist_mat,
+         clustering_distance_cols = dist_mat,
+         clustering_method = "average"
+)
+
+# ✅ Force diagonal to 1 (important fix)
+diag(ani_mat) <- 1
+
+
+threshold <- 300   # adjust based on your dataset
+
+ani_filtered <- ani_mat
+ani_filtered[counts < threshold] <- NA
+
+# Replace NA temporarily for clustering only
+ani_clust <- ani_mat
+
+# Fill missing values with row means (safe for clustering only)
+for (i in 1:nrow(ani_clust)) {
+  row_mean <- mean(ani_clust[i,], na.rm=TRUE)
+  ani_clust[i, is.na(ani_clust[i,])] <- row_mean
+}
+
+# Convert to distance
+dist_mat <- dist(1 - ani_clust)
+
+pheatmap(
+  ani_filtered,
+  
+  # ✅ Use proper clustering
+  clustering_distance_rows = dist_mat,
+  clustering_distance_cols = dist_mat,
+  clustering_method = "average",
+  
+  # ✅ Color scheme (publication safe)
+  color = colorRampPalette(c("#f7fbff","#6baed6","#08306b"))(100),
+  breaks = seq(0.80, 1.00, length.out=101),
+  
+  # ✅ Missing data clearly shown
+  na_col = "grey85",
+  
+  # ✅ Clean aesthetics
+  border_color = NA,
+  fontsize = 10,
+  
+  # ✅ Turn OFF numbers (cleaner figure)
+  display_numbers = FALSE
+)
+
