@@ -35,4 +35,4 @@ concordance*
 tip* 
 R.Rproj
 ./buscos/*
-./*.treefils
+*.treefile
