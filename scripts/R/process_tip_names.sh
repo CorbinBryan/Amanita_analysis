@@ -7,12 +7,12 @@ fi
 for NAME in $(cat tip_names.txt); do
     if [[ "$NAME" =~ ^SRR ]]; then
         SEARCH=$(echo "$NAME" | cut -f1 -d "_")
-        KEY=$(grep "$SEARCH" ../../srr_doc.csv | awk 'BEGIN{FS=","}{print $1}')
+        KEY=$(grep "$SEARCH" ../../metadata/srr_doc.csv | awk 'BEGIN{FS=","}{print $1}')
         echo -e "$NAME\t$KEY" >> tips_species.tsv
     elif [[ "$NAME" =~ ^GCA ]] && ! [[ $NAME =~ GCA_001983385 ]]; then
         SEARCH=$(echo "$NAME" | cut -f1 -d ".") 
         echo "searching for $SEARCH"
-        KEY=$(grep "$SEARCH" ../../ncbi_dataset.tsv | awk 'BEGIN{FS="\t"}{print $4}')
+        KEY=$(grep "$SEARCH" ../../metadata/ncbi_dataset.tsv | awk 'BEGIN{FS="\t"}{print $4}')
         echo -e "$NAME\t$KEY" >> tips_species.tsv
     elif [[ "$NAME" =~ GCA_001983385 ]]; then
         echo -e "$NAME\tAmanita phalloides" >> tips_species.tsv

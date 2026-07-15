@@ -41,3 +41,7 @@ Wirz_S363_spades_no_contam.fasta
 
 * Note that the genomes in the failed runs had reasonable file size and do not seem corrupted. A quick `ls -lh` on the files revealed no obvious issues, both on the cluster and on my local machine.
 * I removed the failed runs (HTCondor will not output a file to a location where a file already exists) with a quick oneliner. Then I released the held jobs using `condor_release --all`, which allows held jobs to be re-tried. Note that if the original reason for the hold is not corrected, the job will be held again shortly. 
+
+
+
+python AMAS.py concat -i *.fasta -f fasta -d dna -t ../concatenated_for_hyde.fasta -u fasta

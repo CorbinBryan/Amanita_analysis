@@ -1,0 +1,8 @@
+Amaapr1_AssemblyScaffolds_Repeatmasked.fasta	pop1
+20045_S349_spades.fasta	pop1
+20031_S348_spades.fasta	pop1
+30000_S38_L007_contigs.fasta	pop2
+30021_S33_L007_contigs.fasta	pop2
+GCA_001691765.1_ASM169176v1_genomic.fna	pop2
+11667_S344_spades.fasta	pop3
+NesPan3_S357_spades.fasta	pop4

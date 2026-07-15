@@ -7,7 +7,7 @@ library(tidyverse)
 library(ggtreeExtra)
 library(ape)
 setwd("/Users/corbinbryan/Desktop/Amanita_analysis/scripts/R")
-treefile <- "../../astral4_anno2.tree"
+treefile <- "../../buscos/astral_sp_trees/astral4_anno2.tree"
 tree <- read.astral(treefile)
 
 #freq_data <- data.frame(
@@ -36,7 +36,7 @@ tree_rooted@phylo <- rooted_phylo
 
 
 freq_long <- tree_rooted@data %>%
-  select(node, q1, q2, q3) #%>%
+  select(node, pp1, pp2, pp3) #%>%
   #pivot_longer(
   #  cols = c(q1, q2, q3),
   #  names_to = "topology",
@@ -92,81 +92,94 @@ name_key <- read.csv(
   col.names = c("tip", "species")
 ) #%>% subset((!species %in% exclude))
 
-pies <- nodepie(freq_long, cols = c("q1", "q2", "q3"), 
-                color = c("q1" = "#377eb8", "q2" = "#e41a1c", "q3" = "#4daf4a"))
-p <- ggtree(tree_rooted) + 
+
+pies <- nodepie(freq_long, cols = c("pp1", "pp2", "pp3"), 
+                color = c("pp1" = "black", "pp2" = "white", "pp3" = "red"))
+p <- ggtree(tree_rooted) +
   #geom_tiplab() + 
   theme_tree() + 
-  geom_cladelabel(node=77, label='italic("A. muscaria")', parse = TRUE, color = "red") + 
-  geom_cladelabel(node=101, label='italic("A. chrysoblema")',parse = TRUE, color = "skyblue") + 
-  geom_cladelabel(node=99, label='italic("A. flavivolvata")',parse = TRUE, color = "gold") +
-  xlim(0, max(tree_rooted@phylo[["edge.length"]]) * 1.1) 
+  geom_cladelabel(node=93, label='italic("A. muscaria")', parse = TRUE, color = "#b98884") + 
+  geom_cladelabel(node=113, label='italic("A. chrysoblema")',parse = TRUE, color = "skyblue") + 
+  geom_cladelabel(node=115, label='italic("A. flavivolvata")',parse = TRUE, color = "gold") +
+  xlim(0, max(tree_rooted@phylo[["edge.length"]]) * 1.1)
+  
 j <- p %<+% name_key + geom_tiplab(aes(subset=(!label %in% exclude),
                                   label=paste0("italic('", species, "')"), 
-                                  parse = TRUE), parse = TRUE) 
+                                  parse = TRUE), parse = TRUE) +
 
 
 # Add pie charts as insets
-final_plot <- inset(j, pies, width = 0.02, height = 0.02)
-
+final_plot <- inset(j, pies, width = 0.02, height = 0.02) 
 
 print(final_plot) 
 
+ggsave("annotated_tree.svg", plot = final_plot)
+
+### ANI Analysis
+setwd("/Users/corbinbryan/Desktop/Amanita_analysis/scripts/R")
+
 library(pheatmap)
 
-ani <- read.table("~/Desktop/Amanita_analysis/ani_matrix.tsv", header=TRUE, row.names=1, sep="\t")
-counts <- read.table("~/Desktop/Amanita_analysis/busco_counts.tsv", header=TRUE, row.names=1, sep="\t")
+library(pheatmap)
 
+# ---- 1. Read file ----
+lines <- readLines("../../skani_dist_matrix.txt")
+n <- as.integer(lines[1])
+lines <- lines[-1]
 
-ani_mat <- as.matrix(ani)
-pheatmap(ani_mat)
-pheatmap(ani_mat,
-         clustering_distance_rows = dist_mat,
-         clustering_distance_cols = dist_mat,
-         clustering_method = "average"
-)
+# ---- 2. Parse matrix ----
+genomes <- character(n)
+mat <- matrix(NA_real_, n, n)
 
-# ✅ Force diagonal to 1 (important fix)
-diag(ani_mat) <- 1
-
-
-threshold <- 300   # adjust based on your dataset
-
-ani_filtered <- ani_mat
-ani_filtered[counts < threshold] <- NA
-
-# Replace NA temporarily for clustering only
-ani_clust <- ani_mat
-
-# Fill missing values with row means (safe for clustering only)
-for (i in 1:nrow(ani_clust)) {
-  row_mean <- mean(ani_clust[i,], na.rm=TRUE)
-  ani_clust[i, is.na(ani_clust[i,])] <- row_mean
+for (i in seq_len(n)) {
+  parts <- strsplit(lines[i], "\t")[[1]]
+  genomes[i] <- parts[1]
+  
+  if (length(parts) > 1) {
+    vals <- as.numeric(parts[-1])
+    mat[i, 1:(i-1)] <- vals
+  }
 }
 
-# Convert to distance
-dist_mat <- dist(1 - ani_clust)
+# ---- 3. Symmetrize ----
 
-pheatmap(
-  ani_filtered,
-  
-  # ✅ Use proper clustering
-  clustering_distance_rows = dist_mat,
-  clustering_distance_cols = dist_mat,
-  clustering_method = "average",
-  
-  # ✅ Color scheme (publication safe)
-  color = colorRampPalette(c("#f7fbff","#6baed6","#08306b"))(100),
-  breaks = seq(0.80, 1.00, length.out=101),
-  
-  # ✅ Missing data clearly shown
-  na_col = "grey85",
-  
-  # ✅ Clean aesthetics
-  border_color = NA,
-  fontsize = 10,
-  
-  # ✅ Turn OFF numbers (cleaner figure)
-  display_numbers = FALSE
+mat[upper.tri(mat)] <- t(mat)[upper.tri(mat)]
+diag(mat) <- 100
+
+rownames(mat) <- basename(genomes)
+colnames(mat) <- basename(genomes)
+
+# ---- 4. CLEAN DATA (CRITICAL STEP) ----
+
+# Convert 0 → NA (failed comparisons)
+mat[mat == 0] <- NA
+
+# Remove genomes with too many NA (broken ones)
+keep <- rowSums(!is.na(mat)) > (0.5 * ncol(mat))
+mat <- mat[keep, keep]
+
+# ---- 5. Convert to distance ----
+dist_mat <- 100 - mat
+
+# Replace remaining NA with SLIGHTLY larger than max distance
+max_val <- max(dist_mat, na.rm = TRUE)
+dist_mat[is.na(dist_mat)] <- max_val + 0.01
+
+# ---- 6. Add tiny noise (prevents identical values issue) ----
+set.seed(1)
+dist_mat <- dist_mat + matrix(rnorm(length(dist_mat), 0, 1e-6),
+                              nrow(dist_mat))
+
+# ---- 7. Plot ----
+hmap <- pheatmap(
+  mat,
+  cluster_rows = TRUE,
+  cellwidth = 5,
+  cellheight = 5,
+  cluster_cols = TRUE,
+  color = colorRampPalette(c("white", "orange", "red"))(100),
+  main = "ANI Distance Heatmap",
+  fontsize = 5
 )
 
+ggsave("hmap.svg", plot = hmap)

@@ -9,7 +9,7 @@ from multiprocessing import Pool, cpu_count
 # -----------------------------
 # Parameters
 # -----------------------------
-ALIGNMENT_DIR = "./buscos/aln/al_*.fasta"
+ALIGNMENT_DIR = "./buscos/aln/tral_*.fasta"
 MIN_BUSCOS = 200
 
 OUTPUT_MATRIX = "ani_matrix.tsv"
