@@ -1,3 +1,6 @@
+# Metadata
+* taxa used to generate BUSCO gene trees can be found in `./ncbi_data_set_accessions.tsv`
+* The volvariella outgroup is [on mycocosm](https://mycocosm.jgi.doe.gov/Volvo1/Volvo1.home.html)
 # BUSCO analysis
 * BUSCO was run on the CHTC at UW Madison. Details on the particular docker image used are available in `./busco.sub`. This file also contains the runtime parameters, including disk, CPU, and RAM usage.
 * The script, `./busco.sh` contains the exact script used to run BUSCO at run-time.
